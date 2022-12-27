@@ -122,7 +122,7 @@ const CoinsTable = () => {
                       key={head}
                       align={head === "Coin" ? "" : "right"}
                     >
-                      <TableSortLabel>{head}</TableSortLabel>
+                      <TableSortLabel direction="asc">{head}</TableSortLabel>
                     </TableCell>
                   ))}
                 </TableRow>
@@ -193,18 +193,17 @@ const CoinsTable = () => {
                         <TableCell
                           align="right"
                           style={{
-                            color: profit > 0 ? "rgb(14, 203, 129)" : "red",
                             fontWeight: 500,
                           }}
                         >
                           {" "}
-                          {symbol} {row.priceChange1h}
+                          {row.priceChange1h} {"%"}
                         </TableCell>
                         <TableCell align="right">
-                          {symbol} {row.priceChange1d}
+                          {row.priceChange1d} {"%"}
                         </TableCell>
                         <TableCell align="right">
-                          {symbol} {row.priceChange1w}
+                          {row.priceChange1w} {"%"}
                         </TableCell>
                       </TableRow>
                     );
