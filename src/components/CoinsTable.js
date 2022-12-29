@@ -28,41 +28,42 @@ const CoinsTable = () => {
   const { currency, symbol, setCurrency } = CryptoState();
   const [page, setPage] = useState(1);
   const history = useHistory();
-  function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-      return -1;
+  const [rowData, setRowData] = useState([]);
+  const sortArray = (arr, orderBy) => {
+    console.log("Arr", arr);
+    switch (orderBy) {
+      case "asc":
+      default:
+        return arr.sort((a, b) =>
+          a.price > b.price ? 1 : b.price > a.price ? -1 : 0
+        );
+      case "desc":
+        return arr.sort((a, b) =>
+          a.price < b.price ? 1 : b.price < a.price ? -1 : 0
+        );
     }
-    if (b[orderBy] > a[orderBy]) {
-      return 1;
-    }
-    return 0;
-  }
+  };
 
-  function getComparator(order, orderBy) {
-    return order === "desc"
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
-  }
+  const handleSortRequest = (e) => {
+    e.preventDefault();
+    console.log("e", e.target.value);
+    setCoins(sortArray(rowData, orderDirection));
+    setOrderDirection(orderDirection === "asc" ? "desc" : "asc");
+  };
 
-  function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-      const order = comparator(a[0], b[0]);
-      if (order !== 0) return order;
-      return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-  }
   const fetchCoins = async () => {
     setLoading(true);
     const { data } = await axios.get(CoinList(currency));
     setCoins(data.coins);
+    setRowData(data.coins);
     console.log("H", data);
     setLoading(false);
   };
   useEffect(() => {
     fetchCoins();
   }, [currency]);
+
+  console.log("data", rowData);
   const darkTheme = createTheme({
     palette: {
       primary: {
@@ -71,6 +72,8 @@ const CoinsTable = () => {
       type: "dark",
     },
   });
+
+  const [orderDirection, setOrderDirection] = useState("asc");
   const useStyles = makeStyles({
     row: {
       backgroundColor: "#16171a",
@@ -121,14 +124,17 @@ const CoinsTable = () => {
                       }}
                       key={head}
                       align={head === "Coin" ? "" : "right"}
+                      onClick={handleSortRequest}
                     >
-                      <TableSortLabel direction="asc">{head}</TableSortLabel>
+                      <TableSortLabel active={true} direction={orderDirection}>
+                        {head}
+                      </TableSortLabel>
                     </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {coins
+                {rowData
                   .slice((page - 1) * 10, (page - 1) * 10 + 10)
                   .map((row) => {
                     const profit = parseFloat(row.priceChange1d) > 0;
